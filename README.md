@@ -1,0 +1,1 @@
+MCP Server enabling access to the foursquare API
