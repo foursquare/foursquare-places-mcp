@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+        "foursquare": {
+            "command": "/path/to/uv/bin/uv",
+            "args": [
+                "--directory",
+                "/path/to/git/clone/fsq-server-python/",
+                "run",
+                "foursquare.py"
+            ],
+            "env": {
+                "FOURSQUARE_API_TOKEN": "YOUR FOURSQUARE API TOKEN"
+            }
+        }
+    }
+}
