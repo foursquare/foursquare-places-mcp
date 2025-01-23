@@ -1,4 +1,5 @@
 from typing import Any
+import geocoder
 import httpx
 import json
 from mcp.server.fastmcp import FastMCP
@@ -40,10 +41,42 @@ async def search_near(where: str, what: str) -> str:
         "near": where
     }
     encoded_params = urlencode(params)
-    url = f"{FSQ_API_BASE}/v3/places/search?{encoded_params}&limit=3"
+    url = f"{FSQ_API_BASE}/v3/places/search?{encoded_params}&limit=5"
     res = await submit_fsq_request(url)
 
     return json.dumps(res)
+
+
+@mcp.tool()
+async def search_near_point(what: str, ll: str, radius: int) -> str:
+    """Search for places near a particular point
+
+    Args:
+        what: concept you are looking for (e.g., coffee shop, Hard Rock Cafe)
+        ll: comma separated latitude and longitude pair (e.g., 40.74,-74.0)
+        radius: distance in meters (e.g., 1000)
+    """
+    params = {
+        "query": what,
+        "ll": ll,
+        "radius": radius
+    }
+    encoded_params = urlencode(params)
+    url = f"{FSQ_API_BASE}/v3/places/search?{encoded_params}&limit=5"
+    res = await submit_fsq_request(url)
+
+    return json.dumps(res)
+
+
+@mcp.tool()
+async def get_ip_location() -> str:
+    """Guess user's location based on ip address. Useful if the user has
+       not provided their own location.
+    """
+    location = geocoder.ip('me')
+    if not location.ok:
+        return "I don't know where you are"
+    return f"{location.lat},{location.lng}"
 
 
 if __name__ == "__main__":
