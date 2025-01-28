@@ -42,7 +42,7 @@ Based on the example [claude_desktop_config.json](claude_desktop_config.json), u
 
 ### Run MCP
 
-Open Claude Desktop. You should see a hammer icon appear in the lower right part of the chat input that says "3 MCP tools available" (or more, if you have installed other MCP servers). There should not be any popup dialogs with errors. Verify by clicking on the hammer that 3 tools from `server: foursquare` are listed as available.
+Open Claude Desktop. You should see a hammer icon appear in the lower right part of the chat input that says "5 MCP tools available" (or more, if you have installed other MCP servers). There should not be any popup dialogs with errors. Verify by clicking on the hammer that 5 tools from `server: foursquare` are listed as available.
 
 Finally test it out by asking Claude for place recommendations!
 ```
