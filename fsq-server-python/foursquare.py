@@ -11,12 +11,14 @@ from urllib.parse import urlencode
 mcp = FastMCP("foursquare")
 
 # Constants
-FSQ_API_BASE = "https://api.foursquare.com"
+FSQ_UNVERSIONED_API_BASE = "https://api.foursquare.com"
 FSQ_API_TOKEN = os.getenv("FOURSQUARE_API_TOKEN")
 
+FSQ_V20241206_API_BASE = "https://places-api.foursquare.com"
+FSQ_SERVICE_TOKEN = os.getenv("FOURSQUARE_SERVICE_TOKEN")
 
-async def submit_fsq_request(url: str) -> dict[str, Any] | None:
-    """Make a request to the Foursquare API with proper error handling."""
+async def submit_unversioned_fsq_request(url: str) -> dict[str, Any] | None:
+    """Make a request to the unversioned Foursquare API with proper error handling."""
     headers = {
         "Authorization": FSQ_API_TOKEN,
     }
@@ -28,6 +30,20 @@ async def submit_fsq_request(url: str) -> dict[str, Any] | None:
         except Exception:
             return None
 
+
+async def submit_v20241206_fsq_request(url: str) -> dict[str, Any] | None:
+    """Make a request to the version 2024-12-06 Foursquare API with proper error handling."""
+    headers = {
+        "Authorization": f"Bearer {FSQ_SERVICE_TOKEN}",
+        "X-Places-Api-Version": "2024-12-06"
+    }
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+        except Exception:
+            return None
 
 @mcp.tool()
 async def search_near(where: str, what: str) -> str:
@@ -43,8 +59,8 @@ async def search_near(where: str, what: str) -> str:
         "limit": 5
     }
     encoded_params = urlencode(params)
-    url = f"{FSQ_API_BASE}/v3/places/search?{encoded_params}"
-    res = await submit_fsq_request(url)
+    url = f"{FSQ_V20241206_API_BASE}/places/search?{encoded_params}"
+    res = await submit_v20241206_fsq_request(url)
 
     return json.dumps(res)
 
@@ -65,8 +81,8 @@ async def search_near_point(what: str, ll: str, radius: int) -> str:
         "limit": 5
     }
     encoded_params = urlencode(params)
-    url = f"{FSQ_API_BASE}/v3/places/search?{encoded_params}"
-    res = await submit_fsq_request(url)
+    url = f"{FSQ_V20241206_API_BASE}/places/search?{encoded_params}"
+    res = await submit_v20241206_fsq_request(url)
 
     return json.dumps(res)
 
@@ -83,8 +99,8 @@ async def place_snap(ll: str) -> str:
         "limit": 1
     }
     encoded_params = urlencode(params)
-    url = f"{FSQ_API_BASE}/v3/places/nearby?{encoded_params}"
-    res = await submit_fsq_request(url)
+    url = f"{FSQ_UNVERSIONED_API_BASE}/v3/places/nearby?{encoded_params}"
+    res = await submit_unversioned_fsq_request(url)
 
     return json.dumps(res)
 
@@ -96,8 +112,8 @@ async def place_details(id: str) -> str:
        price, menu, top photos, top tips (mini-reviews from users), top tastes, and features
        such as takes reservations.
     """
-    url = f"{FSQ_API_BASE}/v3/places/{id}?fields=description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,features"
-    res = await submit_fsq_request(url)
+    url = f"{FSQ_UNVERSIONED_API_BASE}/v3/places/{id}?fields=description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,features"
+    res = await submit_unversioned_fsq_request(url)
 
     return json.dumps(res)
 
