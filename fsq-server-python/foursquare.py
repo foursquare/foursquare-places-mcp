@@ -12,15 +12,14 @@ mcp = FastMCP("foursquare")
 
 # Constants
 FSQ_UNVERSIONED_API_BASE = "https://api.foursquare.com"
-FSQ_API_TOKEN = os.getenv("FOURSQUARE_API_TOKEN")
-
 FSQ_V20241206_API_BASE = "https://places-api.foursquare.com"
+
 FSQ_SERVICE_TOKEN = os.getenv("FOURSQUARE_SERVICE_TOKEN")
 
 async def submit_unversioned_fsq_request(url: str) -> dict[str, Any] | None:
     """Make a request to the unversioned Foursquare API with proper error handling."""
     headers = {
-        "Authorization": FSQ_API_TOKEN,
+        "Authorization": f"Bearer {FSQ_SERVICE_TOKEN}",
     }
     async with httpx.AsyncClient() as client:
         try:
