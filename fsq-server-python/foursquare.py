@@ -16,33 +16,23 @@ FSQ_V20241206_API_BASE = "https://places-api.foursquare.com"
 
 FSQ_SERVICE_TOKEN = os.getenv("FOURSQUARE_SERVICE_TOKEN")
 
-async def submit_unversioned_fsq_request(url: str) -> dict[str, Any] | None:
-    """Make a request to the unversioned Foursquare API with proper error handling."""
+async def submit_request(endpoint: str, params: dict[str, str], version20241206: bool) -> str:
     headers = {
         "Authorization": f"Bearer {FSQ_SERVICE_TOKEN}",
     }
+    if version20241206:
+        headers["X-Places-Api-Version"] = "2024-12-06"
+    encoded_params = urlencode(params)
+    url_base = FSQ_V20241206_API_BASE if version20241206 else FSQ_UNVERSIONED_API_BASE
+    url = f"{url_base}{endpoint}?{encoded_params}"
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(url, headers=headers, timeout=30.0)
             response.raise_for_status()
-            return response.json()
+            return response.text
         except Exception:
-            return None
+            return "null"
 
-
-async def submit_v20241206_fsq_request(url: str) -> dict[str, Any] | None:
-    """Make a request to the version 2024-12-06 Foursquare API with proper error handling."""
-    headers = {
-        "Authorization": f"Bearer {FSQ_SERVICE_TOKEN}",
-        "X-Places-Api-Version": "2024-12-06"
-    }
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(url, headers=headers, timeout=30.0)
-            response.raise_for_status()
-            return response.json()
-        except Exception:
-            return None
 
 @mcp.tool()
 async def search_near(where: str, what: str) -> str:
@@ -57,11 +47,7 @@ async def search_near(where: str, what: str) -> str:
         "near": where,
         "limit": 5
     }
-    encoded_params = urlencode(params)
-    url = f"{FSQ_V20241206_API_BASE}/places/search?{encoded_params}"
-    res = await submit_v20241206_fsq_request(url)
-
-    return json.dumps(res)
+    return await submit_request("/places/search", params, version20241206=True)
 
 
 @mcp.tool()
@@ -79,11 +65,7 @@ async def search_near_point(what: str, ll: str, radius: int) -> str:
         "radius": radius,
         "limit": 5
     }
-    encoded_params = urlencode(params)
-    url = f"{FSQ_V20241206_API_BASE}/places/search?{encoded_params}"
-    res = await submit_v20241206_fsq_request(url)
-
-    return json.dumps(res)
+    return await submit_request("/places/search", params, version20241206=True)
 
 
 @mcp.tool()
@@ -97,11 +79,7 @@ async def place_snap(ll: str) -> str:
         "ll": ll,
         "limit": 1
     }
-    encoded_params = urlencode(params)
-    url = f"{FSQ_UNVERSIONED_API_BASE}/v3/places/nearby?{encoded_params}"
-    res = await submit_unversioned_fsq_request(url)
-
-    return json.dumps(res)
+    return await submit_request("/v3/places/nearby", params, version20241206=False)
 
 
 @mcp.tool()
@@ -111,10 +89,10 @@ async def place_details(id: str) -> str:
        price, menu, top photos, top tips (mini-reviews from users), top tastes, and features
        such as takes reservations.
     """
-    url = f"{FSQ_UNVERSIONED_API_BASE}/v3/places/{id}?fields=description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,features"
-    res = await submit_unversioned_fsq_request(url)
-
-    return json.dumps(res)
+    params = {
+      "fields": "description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,features"
+    }
+    return await submit_request(f"/v3/places/{id}", params, version20241206=False)
 
 
 @mcp.tool()
