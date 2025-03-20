@@ -11,20 +11,17 @@ from urllib.parse import urlencode
 mcp = FastMCP("foursquare")
 
 # Constants
-FSQ_UNVERSIONED_API_BASE = "https://api.foursquare.com"
-FSQ_V20241206_API_BASE = "https://places-api.foursquare.com"
+FSQ_API_BASE = "https://places-api.foursquare.com"
 
 FSQ_SERVICE_TOKEN = os.getenv("FOURSQUARE_SERVICE_TOKEN")
 
-async def submit_request(endpoint: str, params: dict[str, str], version20241206: bool) -> str:
+async def submit_request(endpoint: str, params: dict[str, str]) -> str:
     headers = {
         "Authorization": f"Bearer {FSQ_SERVICE_TOKEN}",
+        "X-Places-Api-Version": "2025-02-05"
     }
-    if version20241206:
-        headers["X-Places-Api-Version"] = "2024-12-06"
     encoded_params = urlencode(params)
-    url_base = FSQ_V20241206_API_BASE if version20241206 else FSQ_UNVERSIONED_API_BASE
-    url = f"{url_base}{endpoint}?{encoded_params}"
+    url = f"{FSQ_API_BASE}{endpoint}?{encoded_params}"
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(url, headers=headers, timeout=30.0)
@@ -47,7 +44,7 @@ async def search_near(where: str, what: str) -> str:
         "near": where,
         "limit": 5
     }
-    return await submit_request("/places/search", params, version20241206=True)
+    return await submit_request("/places/search", params)
 
 
 @mcp.tool()
@@ -65,7 +62,7 @@ async def search_near_point(what: str, ll: str, radius: int) -> str:
         "radius": radius,
         "limit": 5
     }
-    return await submit_request("/places/search", params, version20241206=True)
+    return await submit_request("/places/search", params)
 
 
 @mcp.tool()
@@ -79,7 +76,7 @@ async def place_snap(ll: str) -> str:
         "ll": ll,
         "limit": 1
     }
-    return await submit_request("/v3/places/nearby", params, version20241206=False)
+    return await submit_request("/geotagging/candidates", params)
 
 
 @mcp.tool()
@@ -90,9 +87,9 @@ async def place_details(id: str) -> str:
        such as takes reservations.
     """
     params = {
-      "fields": "description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,features"
+      "fields": "description,tel,website,social_media,hours,hours_popular,rating,price,menu,photos,tips,tastes,attributes"
     }
-    return await submit_request(f"/v3/places/{id}", params, version20241206=False)
+    return await submit_request(f"/places/{id}", params)
 
 
 @mcp.tool()
