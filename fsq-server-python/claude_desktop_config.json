@@ -9,7 +9,6 @@
                 "foursquare.py"
             ],
             "env": {
-                "FOURSQUARE_API_TOKEN": "YOUR FOURSQUARE API TOKEN",
                 "FOURSQUARE_SERVICE_TOKEN": "YOUR FOURSQUARE SERVICE TOKEN"
             }
         }

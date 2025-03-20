@@ -39,7 +39,7 @@ uv sync
 You will need to update the `~/Library/Application\ Support/Claude/claude_desktop_config.json` configuration.
 
 Based on the example [claude_desktop_config.json](claude_desktop_config.json), update the values with 
-correct local paths, your API key, and your Service API key and add to `claude_desktop_config.json`. 
+correct local paths and your Service API key and add to `claude_desktop_config.json`. 
 
 If the file already exists because you have other local MCP servers, just insert the `foursquare` 
 sub-object into the existing config.
