@@ -36,10 +36,14 @@ uv sync
 
 ### Configure MCP
 
-You will need to update the `~/Library/Application\ Support/Claude/claude_desktop_config.json` configuration.
+You will need to update the `~/Library/Application\ Support/Claude/claude_desktop_config.json` configuration. If the file doesn't exit, you can copy paste `claude_desktop_config.json` from this folder into `Claude`.
 
 Based on the example [claude_desktop_config.json](claude_desktop_config.json), update the values with 
 correct local paths and your Service API key and add to `claude_desktop_config.json`. 
+
+- `"command": "/path/to/uv/bin/uv"`,
+- `"args": [...,"/path/to/git/clone/fsq-ai-mcp/fsq-server-python/", ...]`,
+- `"FOURSQUARE_SERVICE_TOKEN": "YOUR FOURSQUARE SERVICE TOKEN"`
 
 If the file already exists because you have other local MCP servers, just insert the `foursquare` 
 sub-object into the existing config.
